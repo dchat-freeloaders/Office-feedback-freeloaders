@@ -2,6 +2,7 @@ package com.github.iauglov.service;
 
 import static com.github.iauglov.model.Action.ADMIN;
 import static com.github.iauglov.model.Action.ADMIN_EVENTS;
+import static com.github.iauglov.model.Action.USER_FEEDBACK_CREATE;
 import static com.github.iauglov.model.Action.USER_START;
 import com.github.iauglov.persistence.Event;
 import com.github.iauglov.persistence.EventRepository;
@@ -80,8 +81,8 @@ public class FeedbackCrudService {
     private void processEventEditing(Message message) {
         String eventTitle = message.getText();
 
-        Integer vacationId = crudCache.eventEditingMap.remove(message.getPeer().getId());
-        Optional<Event> optionalEvent = eventRepository.findById(vacationId);
+        Integer eventId = crudCache.eventEditingMap.remove(message.getPeer().getId());
+        Optional<Event> optionalEvent = eventRepository.findById(eventId);
 
         if (!optionalEvent.isPresent()) {
             bot.messaging().sendText(message.getPeer(), "Событие не найдено, попробуйте снова.").thenAccept(uuid -> {
@@ -104,13 +105,13 @@ public class FeedbackCrudService {
 
         List<InteractiveAction> actions = new ArrayList<>();
 
-        actions.add(new InteractiveAction(USER_START.asId(), new InteractiveButton(USER_START.asId(), USER_START.getLabel())));
+        actions.add(new InteractiveAction(USER_FEEDBACK_CREATE.asId(), new InteractiveButton(USER_FEEDBACK_CREATE.asId(), USER_FEEDBACK_CREATE.getLabel())));
 
         if (user.isAdmin()) {
             actions.add(new InteractiveAction(ADMIN.asId(), new InteractiveButton(ADMIN.asId(), ADMIN.getLabel())));
         }
 
-        InteractiveGroup group = new InteractiveGroup("Vacation bot", String.format("Здравствуйте, %s, хотите запланировать отпуск?\n\nПосле планирования отпуска данные автоматически будут отправлены вашему непосредственному начальнику.", user.getName()), actions);
+        InteractiveGroup group = new InteractiveGroup("Feedback bot", String.format("Здравствуйте, %s, хотите оставить фидбек о прошедшем событии?", user.getName()), actions);
 
         bot.interactiveApi().send(peer, group);
     }
@@ -118,6 +119,7 @@ public class FeedbackCrudService {
     private void openInteractiveAdmin(Peer peer) {
         List<InteractiveAction> actions = new ArrayList<>();
 
+        actions.add(new InteractiveAction(USER_START.asId(), new InteractiveButton(ADMIN_EVENTS.asId(), ADMIN_EVENTS.getLabel())));
         actions.add(new InteractiveAction(ADMIN_EVENTS.asId(), new InteractiveButton(ADMIN_EVENTS.asId(), ADMIN_EVENTS.getLabel())));
 //        actions.add(new InteractiveAction(QUESTIONS.asId(), new InteractiveButton(QUESTIONS.asId(), QUESTIONS.getLabel())));
 //        actions.add(new InteractiveAction(ANSWERS.asId(), new InteractiveButton(ANSWERS.asId(), ANSWERS.getLabel())));

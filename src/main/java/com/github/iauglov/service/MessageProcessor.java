@@ -78,7 +78,7 @@ public class MessageProcessor {
                 unknownCommand(message);
             }
         } else {
-            unknownCommand(message);
+            processStart(message);
         }
     }
 

@@ -214,10 +214,10 @@ public class InteractiveProcessor {
     }
 
     private void processAdminEventDeleteConfirmation(InteractiveEvent event) {
-        Integer vacationId = Integer.valueOf(event.getValue());
+        Integer eventId = Integer.valueOf(event.getValue());
 
-        if (eventRepository.existsById(vacationId)) {
-            eventRepository.deleteById(vacationId);
+        if (eventRepository.existsById(eventId)) {
+            eventRepository.deleteById(eventId);
             bot.messaging().delete(event.getMid());
             bot.messaging().sendText(event.getPeer(), "Событие успешно удалено").thenAccept(uuid -> {
                 processAdmin(event, true);
