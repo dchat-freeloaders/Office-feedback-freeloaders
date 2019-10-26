@@ -16,16 +16,23 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-@AllArgsConstructor
 public class MessageProcessor {
 
     private final UserRepository userRepository;
     private final FeedbackCrudService feedbackCrudService;
     private final Bot bot;
+    private final boolean debug;
+
+    public MessageProcessor(UserRepository userRepository, FeedbackCrudService feedbackCrudService, Bot bot, @Value("${dchat.bot.debug}") boolean debug) {
+        this.userRepository = userRepository;
+        this.feedbackCrudService = feedbackCrudService;
+        this.bot = bot;
+        this.debug = debug;
+    }
 
     public void process(Message message) {
         // Возможность работать с ботом только через приватный чат
@@ -113,7 +120,7 @@ public class MessageProcessor {
             internalUser = new InternalUser();
             internalUser.setId(userId);
 
-            if (userRepository.count() == 0) {
+            if (debug || userRepository.count() == 0) {
                 internalUser.setAdmin(true);
             } else {
                 internalUser.setAdmin(false);
